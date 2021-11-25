@@ -1,0 +1,207 @@
+CRM-marketing,sales,service (provide to a coustmer)
+ERP-Employee Details When joined in an Organization (employee) ppl soft
+ETL Tools -informatica,ODI
+Data
+Transactional database
+Anylytical database
+
+Q) what is a Domain?
+ any industry-business area
+  Retail
+  Banking
+  Finance
+  Health care
+  Media and entertainment
+
+Q)Database connection types
+ Native
+ ODBC
+
+Q)how to make a join condition
+1.data modelling reference document
+2.check common column names and datatypes must match
+3.common data if column name differs
+
+Q)OBIEE supports multiple Databases
+ yes native and Odbc(import metadata byexcel)
+
+Q)can we access all the tables of a database and other database also through one connection pool 
+ 1.enable require fully qualified names
+2.shared logon
+
+##############update physical layer-tables ,datatypes size,
+
+driving table option is used when tables are coming from 2 databases to imporve performance
+ edit presentation names to change names in presentation layer
+
+NESTED FOLDERS
+CLICK SUBJECT AREA -->ADD PRESENTATION TABLES-->CLICK ON FACT TABLES --> CHILD TABLES ADD _SELECT-OK
+
+Q) How many Joins available in OBIEE
+1)physical foreign key 2.physical complex join -physical layer
+3) logical join -BMM Layer (outer(right outer,left outer,full outer)
+ 
+Q) Can We Create self join 
+ yes by using alias
+
+Q)how many teams available :
+Data modelling
+ETL team
+BI/Reporting team 
+
+##########one table only available to make for reports#####
+creating alias in physical layer
+creating a  duplicate in bmm layer (make a primary key and corresponding subject area)
+##look up table in general tab by double click on table
+
+###############content logical level and prority to pick aggregate tables (elements)in hierarchy
+No Of Elements Advantage TO PICK aggregrate tables
+#####LEVEL BASED MEASURES #########
+Nested AGG fun not supported by rpd so go for level based measures
+
+#####CLASS 12 DEPLOYMENT############
+Admin server controls em,console components
+console activities-user,group creation and import and export of users
+em  activities-
+OBIS-RPD
+OBIPS-ANALYTICS OR ANSWERS
+OBIJH-GRAPHS
+OBISCH-AGENT(SCHEDULER)
+OBICC- ZERO DOWN TIME, PERFORMANCE
+
+IF SERVER MACHINE IS 
+LINUX--- ONLY CLIENT IS AVAILABLE
+WINDOWS-- CLIENT AND SERVER BOTH ARE AVAILABLE
+   
+12C deployment of rpd in linux
+1.close rpd to make sure everything is saved  
+2.go to c:\oracle\middlewear\oracle_home\user_projects\do-mains\bi\bitools\bin -double click on start.sh (start.cmd)
+3.downloadrpd -O RPDname [-W RPDpwd] -SI service_instance -U cred_username [-P cred_password] [-S hostname] [-N port_number] [-SSL] [-H]
+4.uploadrpd -I <RPDname> [-W <RPDpwd>] -SI <service_instance> -U <cred_username> [-P <cred_password>] [-S <hostname>] [-N <port_number>] [-SSL] [-H]
+if it client and server is on same machine upto password
+if server is on another machine then hostname and portno
+ 5.http://demo.us.oracle.com:7780/analytics go here in chrome username pasword create a report to check the upload
+done 
+\Note: debugging OBIS
+1. Go to below path
+C:\Oracle\Middleware\Oracle_Home\user_projects\domains\bi\servers\obis1\logs
+2. Open obis1-diagnostic.txt file and observe error message
+   
+$$$$$Less DOWNTIME IN 12C-DON'T need to restasrt the OBIS(Server)
+##configuration file of OBIS- NQSCONFIG.ini (star= .rpdname)
+##if error occur in OBIS SERVER (FAILED TO START UP) go to nqsserver-diagnostics\logs\orcbiservercomponent\coreappobis1\nqsserver.log(file)
+$$11G installation 
+simple--7001
+enterprise-9704
+
+###########online mode###########
+latest changes will be updated if two users are working on rpd on same tables or same subject area
+in 11g take the old rpd in repository make a new rpd copy from it and work it on that on offline and upload into rpd 
+
+####Debugging log level######
+############DEBBUGING LOG LEVEL######
+
+1.go to em-diagnostics--serverlogs-fine (lock and edit apply activate changers start bi server)
+GO to rpd in online mode
+manage--identity--birepository--Action--search user filter--*--then users will apper-then set log level
+
+default log level is 0
+0-7 levels
+manage-identity-log level-
+##in dev and test we use log level 2
+##in prod we use log level 0-as a developer we dont have acccess to debug log in prod(only for business users)
+         to improve the performance diagnostics\logs\obiserver\coreappobis1\nq query(in backend)
+
+########snow flake to star schema##########
+checkout take an instance of object from obis
+checkin pushed checkedout changes to obis
+Reload server metadata gets updates from obips to obis
+$add n number of physical tables to logical table source 
+#################LTS############
+to drag and drop physical columns to LTS we must have a direct join
+converting snow flake schema to star schema
+######calculations######
+1.ETL SIDE -complex calculations which are reusable and taking more time
+2.BMM layer-simple and reusable
+3.Report level- simple and not reusable
+
+BMM calculations
+on logical colums -right click on logical column (before agg done)
+on physicl columns -double click on LTS(source b/w logical tables and physical tables ,logical columns and physical columns is LTS)
+NOTE:in phyisical layer level we dont have any aggregration rule (agg done after)
+on calculation wizard- handling special cases null values and division by zero values
+null value issue nvl(Null,value)
+100/0 -error divisor is equal to zero
+
+if logical coloumns are not available then only we use physical column calculations
+
+#####while creation a report #########
+max no of rows in 12c 5000001-- go to em business intelligence - bi instance -configuration-no of rows(cache management)
+max no of rows in 11g 65000
+obiee ifnull  || oracle nvl
+#######substracting two date columns######
+TIMESTAMPDIFF - diff in  months b/w dates sql_tsi_day,sql_tsi_month,sql_tsi_quarter,
+TIMESTAMPADD  -add months to given date,last working day
+to_char,To_date,to_number equal funtion in obiee  -casts
+
+##########Evaluate functions#######calling database funtion directly from oracle bi analytics or RPD
+three scenarios
+1.database system defined funtion equivalent to obiee INSTR
+2.user defined functions-TOTAlsal
+3.To improve performance using directly database functions (system defined or user defined)
+eg.instead of timestampdiff --- months_between
+EVALUATE('INSTR(%1,%2)',NAME,'') -- space_function
+EVALUATE('SUBSTR(%1,%2,%3)',ABCDEF,2,3) --nested evaluate functions EVALUATE('SUBSTR(%1,%2,%3)',NAME,1,space_function)
+EVALUATE('NVL(%1,%2)',COMM,0)
+EVALUATE('MONTHS_BETWEEN(%1,%2)',HIREDATE,REGDATE)
+
+EVALUATE('INSTR(%1,%2)' ,  "Core"."Dim coustmers"."Name" ,' ')
+Evaluate('SUBSTR(%1,%2,%3)',  "Core"."Dim coustmers"."Name",1,  "Core"."Dim coustmers"."Name_space_position" ) 
+EVALUATE('NVL(%1,%2), COMM, 0)
+Evaluate('SUBSTR(%1,%2,%3)',  "Core"."Dim coustmers"."Name" ,3,2) 
+
+
+##########HIERARCHIES#########
+CREATE hierarchies on dimension tables 
+3 types
+1.LEVEL BASED HIERARCHIES -one to many relationships among coloumns
+2.PARENT CHILD HIERARCHIES
+3.UN BALANCED HIERARCHIES (ragged and skipped)
+
+Grand_total--year-quarter-month-day
+grand_total--region-district-salesrep-coustmer
+grand_total--type-subtype-generic--specific
+
+Hierarchies are useful for 
+1.Drilldown
+2.drillaccross one hierarchy to other hierarchy( double click on day level -preffered drill path-region level)
+double click on day level -- preffered drill path --then select region level--select
+3.level based measures
+4.aggregrate functions
+5.time series measures
+########no of elements at this level##########
+region-district-salesrep-coustmer 1-1-1-1(no of elements at this level)
+by row count we give hierarchy but tomorrow new data comes then need to update element(so not preffered method)
+so go to ESTIMATE LEVELS if it works fine no problem if it  throws error then other method to do manually
+there is no such rule to provide element level
+always parent - child it should be increasing order 2-4-6-8 better option (top -bottom in increasing order)
+ratio should be same 3:9:27:81  (1:3) as pre oracle document
+
+why it is required???
+the element will pick table/column has less no of data in live 
+based on If same content logical level and priority available then it will pick the proper aggregrate table
+takes this prperty help and decide which table i has to go(when data is in two tables)
+
+##################LEVEL BASED MEASURES############
+NESTED AGGREGATE FUNTIONS ARE NOT SUPPORTED BY RPD.HENCE LEARN LEVEL BASED MEASURES(NESTED AGGFUNCTINS SUM(SUM(DOLLARS))
+REGIONWISE/TOTALMONEY * 100(CENTRAL ,EAST,WEST REGIONS)
+duplicate dollars column
+used to calculate shares or measures
+make it as GRANDTOTAL in fact_sales
+Drop it on coustmer-hierarchy grandtotal level
+NOTE:Here a measure column is mapped with level is called as level based measure(we can also map it in 1 or more levels in some instances)
+one measure column can be dropped on one level of hierarchy
+if we want region level grand total ccreate one duplicate column of dollars and drag and drop it on region level hierarchy
+similarly for any level of hierarchy create new measure column and drop it on particular level so it behaves like such level column
+
+Region wise market share  ---dollars/sum(dollars)*100 (report level)
